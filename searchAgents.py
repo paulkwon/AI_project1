@@ -372,55 +372,33 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    import pdb
     
     position = state[0]
     bVisited = state[1]
-    total = abs(corners[2][0]-corners[0][0]) + abs(corners[1][1]-corners[0][1])
-    minimum_mht = []
-    
-    mht_dist = []
-    euc_dist = []
-    for i, corner in enumerate(corners):
-        if bVisited[i] == True: continue
-    
-        mht_dist.append(abs(position[0] - corner[0]) + abs(position[1] - corner[1]))
-        euc_dist.append( ((position[0] - corner[0]) ** 2 + (position[1] - corner[1]) ** 2) ** 0.5)
 
-    # print "manhattan dists", mht_dist 
-    
-    # if len(mht_dist)>0:    
-    #     if not mht_dist.count(min(mht_dist)) == 1: 
-    #         pdb.set_trace()
-    #         print "asdfasdf!!"
-    
-    if len(mht_dist)>0:
-        #minimum_mht = min(mht_dist)+len(mht_dist)#-mht_dist.count(min(mht_dist))
-        minimum_mht = sum(mht_dist)/float(len(mht_dist))#+len(mht_dist)*3
-        # minimum_mht = sum(euc_dist)/float(len(euc_dist))
-        # minimum_mht = (sum(mht_dist)/float(len(mht_dist))*0.9+sum(euc_dist)/float(len(euc_dist))*0.1)
-    else:
-        minimum_mht = 0
+    cornerList = []
+    for i, value in enumerate(bVisited):
+        if not value: cornerList.append(corners[i])
+
+    # initialization for while loop
+    last_position = position
+    sum_mht_dist = 0
+    min_mht_dist = 0
+    while len(cornerList)>0:
         
-    return minimum_mht
-    
-    # minimum_mht = 0
-    # bFirst = True
-    #     for i, corner in enumerate(corners):
-    #         if bVisited[i] == True: continue
-    #         
-    #         mht_dist = abs(position[0] - corner[0]) + abs(position[1] - corner[1])
-    #         
-    #         if bFirst: 
-    #             minimum_mht = mht_dist
-    #             bFirst = False
-    #             
-    #         if mht_dist < minimum_mht:
-    #             minimum_mht = mht_dist
-    # 
-    #     return minimum_mht#/float(total)
-    
-    # return 0 # Default to trivial solution
+        mht_dist = []
+        for corner in cornerList:
+            mht_dist.append(abs(last_position[0] - corner[0]) + abs(last_position[1] - corner[1]))
+
+        min_mht_dist = min(mht_dist)
+        ind_min_mht_dist = mht_dist.index(min_mht_dist)
+
+        # update
+        sum_mht_dist += min_mht_dist
+        last_position = cornerList[ind_min_mht_dist]
+        cornerList.remove(last_position)
+
+    return sum_mht_dist
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -517,17 +495,12 @@ def foodHeuristic(state, problem):
     minimum_mht = []
     
     mht_dist = []
-    euc_dist = []
     for food in foodGrid.asList():
     
         mht_dist.append(abs(position[0] - food[0]) + abs(position[1] - food[1]))
-        # euc_dist.append( ((position[0] - corner[0]) ** 2 + (position[1] - corner[1]) ** 2) ** 0.5)
     
     if len(mht_dist)>0:
-        #minimum_mht = min(mht_dist)+len(mht_dist)#-mht_dist.count(min(mht_dist))
-        minimum_mht = sum(mht_dist)/float(len(mht_dist))#+len(mht_dist)*3
-        # minimum_mht = sum(euc_dist)/float(len(euc_dist))
-        # minimum_mht = (sum(mht_dist)/float(len(mht_dist))*0.9+sum(euc_dist)/float(len(euc_dist))*0.1)
+        minimum_mht = sum(mht_dist)/float(len(mht_dist))
     else:
         minimum_mht = 0
         
@@ -612,6 +585,16 @@ class ApproximateSearchAgent(Agent):
         "This method is called before any moves are made."
         "*** YOUR CODE HERE ***"
 
+    # def findPathToClosestDot(self, gameState):
+    #     # Here are some useful elements of the startState
+    #     startPosition = gameState.getPacmanPosition()
+    #     food = gameState.getFood()
+    #     walls = gameState.getWalls()
+    #     problem = AnyFoodSearchProblem(gameState)
+
+    #     action = search.uniformCostSearch(problem)
+    #     return action
+
     def getAction(self, state):
         """
         From game.py:
@@ -619,6 +602,26 @@ class ApproximateSearchAgent(Agent):
         Directions.{North, South, East, West, Stop}
         """
         "*** YOUR CODE HERE ***"
+
+        # self.actions = []
+        # currentState = state
+        # while(currentState.getFood().count() > 0):
+        #     nextPathSegment = self.findPathToClosestDot(currentState) # The missing piece
+        #     self.actions += nextPathSegment
+        #     for action in nextPathSegment:
+        #         legal = currentState.getLegalActions()
+        #         if action not in legal:
+        #             t = (str(action), str(currentState))
+        #             raise Exception, 'findPathToClosestDot returned an illegal move: %s!\n%s' % t
+        #         currentState = currentState.generateSuccessor(0, action)
+        # self.actionIndex = 0
+        # print 'Path found with cost %d.' % len(self.actions)
+
+        # return self.actions
+
+
+
+
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
